@@ -128,7 +128,6 @@ export default function AdminDashboard() {
 
       setDbStatus('online');
     } catch (err) {
-      console.log('Using offline presentation mock data');
       setDbStatus('offline');
       // Set high fidelity offline fallback state
       setStats({

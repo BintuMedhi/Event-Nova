@@ -304,7 +304,6 @@ export async function loadEventsFromCSV(bust = false): Promise<EventRecord[]> {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     csvRows = parseCSV(text);
-    console.log(`[EventNova] /events.csv loaded — ${csvRows.length} rows from file`);
   } catch (err) {
     console.warn('[EventNova] Failed to fetch /events.csv, using built-in dataset only:', err);
   }
@@ -328,16 +327,6 @@ export async function loadEventsFromCSV(bust = false): Promise<EventRecord[]> {
   const hackathons   = allEvents.filter(e => e.category === 'Hackathon').length;
   const guwahati     = allEvents.filter(e => e.venue.city.toLowerCase() === 'guwahati').length;
   const technology   = allEvents.filter(e => ['Hackathon', 'Tech Conference', 'Business'].includes(e.category)).length;
-
-  console.group('%c[EventNova] Event Data Debug Report', 'color:#A67B5B;font-weight:bold;font-size:13px');
-  console.log(`%cTotal events loaded  : ${total}`,    'color:#22C55E;font-weight:bold');
-  console.log(`%cFeatured events      : ${featured}`, 'color:#A67B5B;font-weight:bold');
-  console.log(`%cTechnology events    : ${technology}`,'color:#60A5FA;font-weight:bold');
-  console.log(`%cHackathons           : ${hackathons}`,'color:#F59E0B;font-weight:bold');
-  console.log(`%cTech Conferences     : ${techConf}`, 'color:#8B5CF6;font-weight:bold');
-  console.log(`%cGuwahati events      : ${guwahati}`, 'color:#34D399;font-weight:bold');
-  console.log('All events:', allEvents.map(e => `${e.title} [${e.category}] ${e.venue.city}`));
-  console.groupEnd();
 
   return _cachedEvents;
 }
