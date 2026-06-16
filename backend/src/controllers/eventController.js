@@ -234,6 +234,7 @@ const syncCSVEventsToDB = async () => {
       
       const eventData = {
         title: item.title,
+        slug: item.slug,
         description: item.description,
         category: item.category,
         banner: item.banner,

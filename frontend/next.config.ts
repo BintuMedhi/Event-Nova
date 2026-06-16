@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    // Force Webpack to always check frontend/node_modules first
+    // This allows backend/ files to resolve dependencies installed in frontend/
+    config.resolve.modules = [path.resolve(__dirname, 'node_modules'), 'node_modules'];
+    return config;
+  },
   async rewrites() {
     if (process.env.NODE_ENV === 'development') {
       return [

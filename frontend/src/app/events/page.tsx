@@ -60,7 +60,29 @@ function EventsList() {
   const fetchEvents = async (filters: any) => {
     setLoading(true);
     try {
-      // Primary: load from CSV dataset (async, re-parses /events.csv)
+      const queryParams = new URLSearchParams();
+      if (filters.search) queryParams.append('search', filters.search);
+      if (filters.category && filters.category !== 'All') queryParams.append('category', filters.category);
+      if (filters.city) queryParams.append('city', filters.city);
+      if (filters.minPrice) queryParams.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) queryParams.append('maxPrice', filters.maxPrice);
+      if (filters.sort) queryParams.append('sort', filters.sort);
+
+      const response = await fetch(`/api/events?${queryParams.toString()}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.events) {
+          setEvents(data.events);
+          setLoading(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('API fetch failed:', error);
+    }
+
+    try {
+      // Primary fallback: load from CSV dataset (async, re-parses /events.csv)
       const { loadEventsFromCSV } = await import('@/data/csvEventService');
       let allEvents = await loadEventsFromCSV();
 
@@ -155,7 +177,7 @@ function EventsList() {
         {/* Banner */}
         <div className="relative h-48 w-full overflow-hidden">
           <img
-            src={imgError ? DEFAULT_BANNER : event.banner}
+            src={imgError || !event.banner ? DEFAULT_BANNER : event.banner}
             alt={event.title}
             loading="lazy"
             onError={() => setImgError(true)}
@@ -265,6 +287,7 @@ function EventsList() {
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Event title or keyword..."
                 className="w-full bg-transparent border-0 outline-none text-white placeholder-text-muted text-sm py-1.5 px-2"
+                suppressHydrationWarning
               />
             </form>
           </div>
@@ -277,6 +300,7 @@ function EventsList() {
               onChange={(e) => setCity(e.target.value)}
               placeholder="e.g. Mumbai"
               className="w-full bg-bg-secondary border border-white/10 rounded-xl outline-none text-white placeholder-text-muted text-sm py-2 px-3 focus:border-accent-purple/50 transition-all"
+              suppressHydrationWarning
             />
           </div>
 
@@ -286,6 +310,7 @@ function EventsList() {
               value={sort}
               onChange={(e) => handleSortChange(e.target.value)}
               className="w-full bg-bg-secondary border border-white/10 rounded-xl outline-none text-white text-sm py-2 px-3 focus:border-accent-purple/50 transition-all appearance-none"
+              suppressHydrationWarning
             >
               <option value="">Recommended</option>
               <option value="popularity">Most Popular</option>
@@ -301,13 +326,13 @@ function EventsList() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-text-muted uppercase tracking-wider font-semibold">Price Range:</span>
-              <input type="number" placeholder="Min ₹" value={minPrice} onChange={e => setMinPrice(e.target.value)} className="w-20 bg-bg-secondary border border-white/10 rounded-lg outline-none text-white text-xs py-1.5 px-2" />
+              <input type="number" placeholder="Min ₹" value={minPrice} onChange={e => setMinPrice(e.target.value)} className="w-20 bg-bg-secondary border border-white/10 rounded-lg outline-none text-white text-xs py-1.5 px-2" suppressHydrationWarning />
               <span className="text-text-muted">-</span>
-              <input type="number" placeholder="Max ₹" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} className="w-20 bg-bg-secondary border border-white/10 rounded-lg outline-none text-white text-xs py-1.5 px-2" />
+              <input type="number" placeholder="Max ₹" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} className="w-20 bg-bg-secondary border border-white/10 rounded-lg outline-none text-white text-xs py-1.5 px-2" suppressHydrationWarning />
             </div>
           </div>
           
-          <button onClick={() => handleApplyFilters()} className="bg-accent-purple hover:bg-accent-purple/80 text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-accent-purple/20">
+          <button onClick={() => handleApplyFilters()} className="bg-accent-purple hover:bg-accent-purple/80 text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-accent-purple/20" suppressHydrationWarning>
             Apply Filters
           </button>
         </div>
@@ -323,6 +348,7 @@ function EventsList() {
                   ? 'bg-accent-purple border-accent-purple text-white-actual shadow-lg shadow-accent-purple/25'
                   : 'bg-bg-secondary border-transparent text-text-muted hover:bg-accent-purple/5 hover:text-accent-purple'
               }`}
+              suppressHydrationWarning
             >
               {cat}
             </button>

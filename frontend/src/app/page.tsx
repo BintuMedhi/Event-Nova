@@ -41,8 +41,23 @@ export default function Home() {
   }, []);
 
   const fetchEvents = async () => {
+    setLoading(true);
     try {
-      // Always use CSV dataset as primary source
+      const response = await fetch('/api/events');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.events?.length > 0) {
+          setEvents(data.events);
+          setLoading(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch from API:', error);
+    }
+    
+    // Fallback
+    try {
       const { loadEventsFromCSV } = await import('@/data/csvEventService');
       const csvData = await loadEventsFromCSV();
       if (csvData.length > 0) {
@@ -50,20 +65,19 @@ export default function Home() {
         setLoading(false);
         return;
       }
-    } catch {
-      // fall through to static data
-    }
+    } catch (error) {}
+    
     setEvents(CSV_EVENTS);
     setLoading(false);
   };
 
   const categories = [
-    { name: 'Music Concert', count: `${CSV_EVENTS.filter(e => e.category === 'Music Concert').length} Events` },
-    { name: 'Festival', count: `${CSV_EVENTS.filter(e => e.category === 'Festival' || e.category === 'College Fest').length} Events` },
-    { name: 'Workshop', count: `${CSV_EVENTS.filter(e => e.category === 'Workshop').length} Events` },
-    { name: 'Business', count: `${CSV_EVENTS.filter(e => e.category === 'Business').length} Events` },
-    { name: 'Hackathon', count: `${CSV_EVENTS.filter(e => e.category === 'Hackathon').length} Events` },
-    { name: 'Tech Conference', count: `${CSV_EVENTS.filter(e => e.category === 'Tech Conference').length} Events` },
+    { name: 'Music Concert', count: `${events.filter(e => e.category === 'Music Concert').length} Events` },
+    { name: 'Festival', count: `${events.filter(e => e.category === 'Festival' || e.category === 'College Fest').length} Events` },
+    { name: 'Workshop', count: `${events.filter(e => e.category === 'Workshop').length} Events` },
+    { name: 'Business', count: `${events.filter(e => e.category === 'Business').length} Events` },
+    { name: 'Hackathon', count: `${events.filter(e => e.category === 'Hackathon').length} Events` },
+    { name: 'Tech Conference', count: `${events.filter(e => e.category === 'Tech Conference').length} Events` },
   ];
 
   return (
@@ -134,7 +148,7 @@ export default function Home() {
                   {/* Image Side */}
                   <div className="lg:w-3/5 relative h-[400px] lg:h-[600px] overflow-hidden">
                     <img 
-                      src={featuredEvent.banner} 
+                      src={featuredEvent.banner || DEFAULT_BANNER} 
                       alt={featuredEvent.title} 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                     />
@@ -246,7 +260,7 @@ export default function Home() {
                       <div className="relative h-56 w-full p-2 pb-0">
                         <div className="showroom-image-wrap w-full h-full relative">
                           <img
-                            src={event.banner}
+                            src={event.banner || DEFAULT_BANNER}
                             alt={event.title}
                             className="h-full w-full object-cover"
                           />

@@ -48,7 +48,7 @@ function EventCard({ event }: { event: EventRecord }) {
       {/* Banner */}
       <div className="relative h-52 w-full overflow-hidden">
         <img
-          src={imgError ? DEFAULT_BANNER : event.banner}
+          src={imgError || !event.banner ? DEFAULT_BANNER : event.banner}
           alt={event.title}
           loading="lazy"
           onError={() => setImgError(true)}
@@ -129,7 +129,7 @@ function FeaturedHeroCard({ event }: { event: EventRecord }) {
       {/* Banner */}
       <div className="relative h-72 w-full overflow-hidden">
         <img
-          src={imgError ? DEFAULT_BANNER : event.banner}
+          src={imgError || !event.banner ? DEFAULT_BANNER : event.banner}
           alt={event.title}
           loading="lazy"
           onError={() => setImgError(true)}
@@ -205,7 +205,21 @@ export default function DiscoverPage() {
   useEffect(() => {
     async function loadEvents() {
       try {
-        // Always load from CSV dataset first (primary source of truth)
+        const response = await fetch('/api/events');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.events?.length > 0) {
+            setEvents(data.events);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('API fetch failed:', error);
+      }
+
+      try {
+        // Always load from CSV dataset first (primary fallback)
         const { loadEventsFromCSV } = await import('@/data/csvEventService');
         const csvData = await loadEventsFromCSV();
         if (csvData.length > 0) {
