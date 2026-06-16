@@ -115,9 +115,11 @@ mongoose
     console.log('💚 Connected to MongoDB database successfully!');
     console.log(`🔗 Database URI: ${MONGODB_URI.replace(/:[^:@]+@/, ':****@')}`);
     console.log('====================================================\n');
-    server.listen(PORT, () => {
-      console.log(`🔥 Server running in development mode on port ${PORT}`);
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      server.listen(PORT, () => {
+        console.log(`🔥 Server running in development mode on port ${PORT}`);
+      });
+    }
   })
   .catch((err) => {
     global.dbOffline = true;
@@ -139,7 +141,11 @@ mongoose
     console.log('     net start MongoDB');
     console.log('====================================================\n');
     // Fallback so the server can run offline if MongoDB is not started yet! Extremely robust!
-    server.listen(PORT, () => {
-      console.log(`🔥 Server running in DATABASE-OFFLINE-MODE on port ${PORT}`);
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      server.listen(PORT, () => {
+        console.log(`🔥 Server running in DATABASE-OFFLINE-MODE on port ${PORT}`);
+      });
+    }
   });
+
+module.exports = app;
