@@ -169,7 +169,7 @@ const getSmartMockResponse = (prompt, category) => {
   }
 
   // Default marketing email copy
-  return `Subject: Exclusively Invited: Secure Your Spot for the Event of the Year! 🌟\n\nDear Creator,\n\nWe are absolutely thrilled to invite you to our upcoming event, designed to bring together community leaders, industry pioneers, and passionate individuals like you!\n\n📅 Date: Upcoming Weekend\n📍 Venue: Prime Location Arena\n\nWhy you can't miss this:\n- Live Interactive Masterclasses with experts\n- High-impact networking with key decision-makers\n- Free food, merchandise, and dynamic social zones!\n\nTickets are selling out rapidly. As an early partner, we're giving you a 10% discount using coupon: WELCOME10.\n\n👉 Click the link to book your tickets now: http://localhost:3000\n\nSee you there!\n\nBest regards,\nThe EventNova Team`;
+  return `Subject: Exclusively Invited: Secure Your Spot for the Event of the Year! 🌟\n\nDear Creator,\n\nWe are absolutely thrilled to invite you to our upcoming event, designed to bring together community leaders, industry pioneers, and passionate individuals like you!\n\n📅 Date: Upcoming Weekend\n📍 Venue: Prime Location Arena\n\nWhy you can't miss this:\n- Live Interactive Masterclasses with experts\n- High-impact networking with key decision-makers\n- Free food, merchandise, and dynamic social zones!\n\nTickets are selling out rapidly. As an early partner, we're giving you a 10% discount using coupon: WELCOME10.\n\n👉 Click the link to book your tickets now: ${process.env.FRONTEND_URL || 'http://localhost:3000'}\n\nSee you there!\n\nBest regards,\nThe EventNova Team`;
 };
 
 // @desc    Generate event description
@@ -295,7 +295,7 @@ exports.chatWithAI = async (req, res) => {
       if (matched.length > 0) {
         let responseMsg = `Here are the top **${reason}** from our 2026 CSV dataset:\n\n`;
         matched.forEach(e => {
-          responseMsg += `* **[${e.name}](http://localhost:3000/events/${e.slug})**\n  * **Category**: ${e.category}\n  * **Venue**: ${e.venue}, ${e.city}\n  * **Date**: ${new Date(e.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}\n  * **Price**: Starting from ₹${e.price}\n\n`;
+          responseMsg += `* **[${e.name}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${e.slug})**\n  * **Category**: ${e.category}\n  * **Venue**: ${e.venue}, ${e.city}\n  * **Date**: ${new Date(e.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}\n  * **Price**: Starting from ₹${e.price}\n\n`;
         });
         responseMsg += `Would you like me to guide you through booking tickets for any of these?`;
         
@@ -308,9 +308,9 @@ exports.chatWithAI = async (req, res) => {
       return res.status(200).json({
         success: true,
         message: `I couldn't find any specific matches for that, but here are some of the hottest events from our dataset you might enjoy:\n\n` +
-          `1. **[${csvEvents[0]?.name || 'Arijit Singh Live 2026'}](http://localhost:3000/events/${csvEvents[0]?.slug})** — Soulful music concert in ${csvEvents[0]?.city || 'Guwahati'} (₹${csvEvents[0]?.price || '2499'})\n` +
-          `2. **[${csvEvents[6]?.name || 'Winter Carnival 2026'}](http://localhost:3000/events/${csvEvents[6]?.slug})** — Festive fun in ${csvEvents[6]?.city || 'Guwahati'} (₹${csvEvents[6]?.price || '299'})\n` +
-          `3. **[${csvEvents[7]?.name || 'Taylor Swift India'}](http://localhost:3000/events/${csvEvents[7]?.slug})** — Grand musical experience in ${csvEvents[7]?.city || 'Guwahati'} (₹${csvEvents[7]?.price || '3999'})\n\n` +
+          `1. **[${csvEvents[0]?.name || 'Arijit Singh Live 2026'}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${csvEvents[0]?.slug})** — Soulful music concert in ${csvEvents[0]?.city || 'Guwahati'} (₹${csvEvents[0]?.price || '2499'})\n` +
+          `2. **[${csvEvents[6]?.name || 'Winter Carnival 2026'}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${csvEvents[6]?.slug})** — Festive fun in ${csvEvents[6]?.city || 'Guwahati'} (₹${csvEvents[6]?.price || '299'})\n` +
+          `3. **[${csvEvents[7]?.name || 'Taylor Swift India'}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${csvEvents[7]?.slug})** — Grand musical experience in ${csvEvents[7]?.city || 'Guwahati'} (₹${csvEvents[7]?.price || '3999'})\n\n` +
           `Tell me your city or preferred category and I'll find the perfect match!`,
       });
     }
