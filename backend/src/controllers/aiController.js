@@ -3,6 +3,7 @@ const Groq = require('groq-sdk');
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
+const Event = require('../models/Event');
 
 const CSV_FILE_PATH = path.join(__dirname, '../../../EventNova_Events_Dataset_2026 - EventNova Dataset.csv');
 
@@ -249,15 +250,33 @@ exports.chatWithAI = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide an array of messages' });
     }
 
-    // Build event list from CSV dataset (or fallback to hardcoded)
-    const csvEvents = await getCSVEventsForContext();
+    // Fetch live events from MongoDB (upcoming published events)
+    const dbEvents = await Event.find({ 
+      status: 'published', 
+      date: { $gte: new Date() } 
+    })
+    .sort({ date: 1 })
+    .limit(60)
+    .populate('organizerId', 'name');
+
     let eventListContext;
-    if (csvEvents.length > 0) {
-      eventListContext = csvEvents.map((e, i) =>
-        `${i + 1}. ${e.name} (${e.category}, ${e.city}, ${e.venue}, ₹${e.price}, by ${e.organizer})`
-      ).join('\n');
+    if (dbEvents.length > 0) {
+      eventListContext = dbEvents.map((e, i) => {
+        const minPrice = e.ticketTiers && e.ticketTiers.length > 0 
+          ? Math.min(...e.ticketTiers.map(t => t.price)) 
+          : 0;
+        const orgName = e.organizerId ? e.organizerId.name : 'Unknown';
+        // Trim description to save tokens
+        const descSnippet = e.description ? e.description.substring(0, 150).replace(/\n/g, ' ') + '...' : '';
+        
+        return `${i + 1}. [${e.title}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${e.slug})
+  Category: ${e.category} | City: ${e.venue.city} | Venue: ${e.venue.name}
+  Date: ${new Date(e.date).toLocaleDateString()} | Min Price: ₹${minPrice}
+  Organizer: ${orgName}
+  Description: ${descSnippet}`;
+      }).join('\n\n');
     } else {
-      eventListContext = `1. Arijit Singh Live 2026 (Music Concert, Bangalore)\n2. HackIndia National Hackathon (Hackathon, Bangalore)\n3. Startup Networking Summit (Business, Delhi)\n4. Digital Marketing Masterclass (Workshop, Kolkata)\n5. Winter Food Festival (Festival, Jaipur)`;
+      eventListContext = `No upcoming events found in the database.`;
     }
 
     const apiKey = process.env.GROQ_API_KEY;
@@ -267,35 +286,33 @@ exports.chatWithAI = async (req, res) => {
       let matched = [];
       let reason = '';
       
-      if (userMessage.includes('concert') || userMessage.includes('music') || userMessage.includes('sing') || userMessage.includes('shreya') || userMessage.includes('arijit') || userMessage.includes('rahman') || userMessage.includes('sonu') || userMessage.includes('armaan') || userMessage.includes('roses') || userMessage.includes('swift')) {
-        matched = csvEvents.filter(e => e.category === 'Music Concert' || e.name.toLowerCase().includes('live') || e.name.toLowerCase().includes('melody') || e.name.toLowerCase().includes('sing') || e.name.toLowerCase().includes('rahman') || e.name.toLowerCase().includes('swift') || e.name.toLowerCase().includes('roses'));
-        reason = 'soulful music concerts and live performances';
-      } else if (userMessage.includes('hackathon') || userMessage.includes('hack') || userMessage.includes('code') || userMessage.includes('tech') || userMessage.includes('summit')) {
-        matched = csvEvents.filter(e => e.category === 'Hackathon' || e.name.toLowerCase().includes('hack') || e.name.toLowerCase().includes('tech') || e.name.toLowerCase().includes('summit'));
-        reason = 'coding sprints and tech hackathons';
-      } else if (userMessage.includes('workshop') || userMessage.includes('masterclass') || userMessage.includes('learn')) {
-        matched = csvEvents.filter(e => e.category === 'Workshop' || e.name.toLowerCase().includes('masterclass') || e.name.toLowerCase().includes('workshop') || e.name.toLowerCase().includes('learn'));
-        reason = 'practical learning workshops';
-      } else if (userMessage.includes('festival') || userMessage.includes('carnival') || userMessage.includes('food')) {
-        matched = csvEvents.filter(e => e.category === 'Festival' || e.name.toLowerCase().includes('festival') || e.name.toLowerCase().includes('carnival') || e.name.toLowerCase().includes('food'));
-        reason = 'festivals and carnivals';
-      } else if (userMessage.includes('business') || userMessage.includes('startup') || userMessage.includes('meet') || userMessage.includes('networking')) {
-        matched = csvEvents.filter(e => e.category === 'Business' || e.name.toLowerCase().includes('startup') || e.name.toLowerCase().includes('networking') || e.name.toLowerCase().includes('meet'));
-        reason = 'business networking and startup events';
-      } else if (userMessage.includes('near me') || userMessage.includes('near') || userMessage.includes('guwahati') || userMessage.includes('local')) {
-        matched = csvEvents.filter(e => e.city.toLowerCase() === 'guwahati' || userMessage.includes(e.city.toLowerCase()));
-        reason = 'events happening near you';
+      if (userMessage.includes('concert') || userMessage.includes('music') || userMessage.includes('sing')) {
+        matched = dbEvents.filter(e => e.category === 'Music Concert' || e.title.toLowerCase().includes('live'));
+        reason = 'music concerts and live performances';
+      } else if (userMessage.includes('hackathon') || userMessage.includes('hack') || userMessage.includes('tech')) {
+        matched = dbEvents.filter(e => e.category === 'Hackathon' || e.category === 'Tech Conference' || e.title.toLowerCase().includes('hack'));
+        reason = 'tech events and hackathons';
+      } else if (userMessage.includes('workshop') || userMessage.includes('learn')) {
+        matched = dbEvents.filter(e => e.category === 'Workshop' || e.title.toLowerCase().includes('workshop'));
+        reason = 'learning workshops';
+      } else if (userMessage.includes('festival') || userMessage.includes('food')) {
+        matched = dbEvents.filter(e => e.category === 'Festival' || e.title.toLowerCase().includes('festival'));
+        reason = 'festivals';
+      } else if (userMessage.includes('business') || userMessage.includes('startup')) {
+        matched = dbEvents.filter(e => e.category === 'Business' || e.category === 'Startup Meet');
+        reason = 'business and startup events';
       } else {
-        matched = csvEvents.filter(e => userMessage.includes(e.city.toLowerCase()));
+        matched = dbEvents.filter(e => userMessage.includes(e.venue.city.toLowerCase()));
         if (matched.length > 0) {
-          reason = `events in ${matched[0].city}`;
+          reason = `events in ${matched[0].venue.city}`;
         }
       }
 
       if (matched.length > 0) {
-        let responseMsg = `Here are the top **${reason}** from our 2026 CSV dataset:\n\n`;
+        let responseMsg = `Here are the top **${reason}** happening soon:\n\n`;
         matched.forEach(e => {
-          responseMsg += `* **[${e.name}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${e.slug})**\n  * **Category**: ${e.category}\n  * **Venue**: ${e.venue}, ${e.city}\n  * **Date**: ${new Date(e.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}\n  * **Price**: Starting from ₹${e.price}\n\n`;
+          const minPrice = e.ticketTiers && e.ticketTiers.length > 0 ? Math.min(...e.ticketTiers.map(t => t.price)) : 0;
+          responseMsg += `* **[${e.title}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${e.slug})**\n  * **Category**: ${e.category}\n  * **Venue**: ${e.venue.name}, ${e.venue.city}\n  * **Date**: ${new Date(e.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}\n  * **Price**: Starting from ₹${minPrice}\n\n`;
         });
         responseMsg += `Would you like me to guide you through booking tickets for any of these?`;
         
@@ -307,11 +324,10 @@ exports.chatWithAI = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: `I couldn't find any specific matches for that, but here are some of the hottest events from our dataset you might enjoy:\n\n` +
-          `1. **[${csvEvents[0]?.name || 'Arijit Singh Live 2026'}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${csvEvents[0]?.slug})** — Soulful music concert in ${csvEvents[0]?.city || 'Guwahati'} (₹${csvEvents[0]?.price || '2499'})\n` +
-          `2. **[${csvEvents[6]?.name || 'Winter Carnival 2026'}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${csvEvents[6]?.slug})** — Festive fun in ${csvEvents[6]?.city || 'Guwahati'} (₹${csvEvents[6]?.price || '299'})\n` +
-          `3. **[${csvEvents[7]?.name || 'Taylor Swift India'}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${csvEvents[7]?.slug})** — Grand musical experience in ${csvEvents[7]?.city || 'Guwahati'} (₹${csvEvents[7]?.price || '3999'})\n\n` +
-          `Tell me your city or preferred category and I'll find the perfect match!`,
+        message: `I couldn't find any specific matches for that, but here are some of our latest events you might enjoy:\n\n` +
+          (dbEvents[0] ? `1. **[${dbEvents[0].title}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${dbEvents[0].slug})** — ${dbEvents[0].category} in ${dbEvents[0].venue.city}\n` : '') +
+          (dbEvents[1] ? `2. **[${dbEvents[1].title}](${process.env.FRONTEND_URL || 'http://localhost:3000'}/events/${dbEvents[1].slug})** — ${dbEvents[1].category} in ${dbEvents[1].venue.city}\n` : '') +
+          `\nTell me your city or preferred category and I'll find the perfect match!`,
       });
     }
 
@@ -321,7 +337,7 @@ exports.chatWithAI = async (req, res) => {
       role: 'system',
       content: `You are EventNova AI, an intelligent event discovery concierge. Help users discover events, recommend trending activities, answer event-related questions, and provide conversational assistance. Format your responses with clear recommendation cards, explain why they are a good match, and provide quick action suggestions. Your tone should be premium, helpful, and enthusiastic.
 
-      IMPORTANT CONTEXT - Current active events from the EventNova 2026 dataset:\n${eventListContext}\n\nAlways refer to these real events when making recommendations. Mention the city, venue, and approximate price when suggesting events.`
+      IMPORTANT CONTEXT - Current live and active events from the EventNova database:\n${eventListContext}\n\nAlways refer to these real events when making recommendations. Mention the city, venue, and approximate price when suggesting events.`
     };
 
     const apiMessages = [systemPrompt, ...messages];
