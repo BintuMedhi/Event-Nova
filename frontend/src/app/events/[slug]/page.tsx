@@ -82,7 +82,7 @@ export default function EventDetail() {
 
   useEffect(() => {
     // Read ref parameter from URL
-    const ref = searchParams.get('ref');
+    const ref = searchParams?.get('ref');
     if (ref) {
       setReferralCode(ref);
     }
@@ -94,7 +94,7 @@ export default function EventDetail() {
       // Primary: look up event from CSV dataset (dynamically loaded)
       const { loadEventsFromCSV, getEventBySlug: csvGetBySlug } = await import('@/data/csvEventService');
       const allEvents = await loadEventsFromCSV();
-      const csvEvent = csvGetBySlug(params.slug as string, allEvents);
+      const csvEvent = csvGetBySlug(params?.slug as string, allEvents);
       if (csvEvent) {
         setEvent(csvEvent as any);
         if (csvEvent.ticketTiers.length > 0) {
@@ -104,7 +104,7 @@ export default function EventDetail() {
         return;
       }
       // Try backend as secondary source
-      const response = await fetch(`/api/events/slug/${params.slug}`);
+      const response = await fetch(`/api/events/slug/${params?.slug}`);
       const data = await response.json();
       if (data.success && data.event) {
         setEvent(data.event);
@@ -116,7 +116,7 @@ export default function EventDetail() {
       }
     } catch (error) {
       // Static CSV fallback: look up by slug
-      const mockEvent = getEventBySlug(params.slug as string) || CSV_EVENTS[0];
+      const mockEvent = getEventBySlug(params?.slug as string) || CSV_EVENTS[0];
       setEvent(mockEvent as any);
       if (mockEvent.ticketTiers && mockEvent.ticketTiers.length > 0) {
         setSelectedTier(mockEvent.ticketTiers[0]._id);

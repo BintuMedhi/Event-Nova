@@ -41,8 +41,8 @@ function EventsList() {
 
   // Sync initial query params
   useEffect(() => {
-    const searchParam = searchParams.get('search');
-    const catParam = searchParams.get('category');
+    const searchParam = searchParams?.get('search');
+    const catParam = searchParams?.get('category');
     
     if (searchParam) setSearch(searchParam);
     if (catParam) setSelectedCategory(catParam);

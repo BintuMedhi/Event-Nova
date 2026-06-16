@@ -21,7 +21,7 @@ function RegisterForm() {
 
   // Pre-fill referral code from URL search param if present! (e.g. ?ref=rahul123)
   useEffect(() => {
-    const ref = searchParams.get('ref');
+    const ref = searchParams?.get('ref');
     if (ref) {
       setReferredByCode(ref);
     }

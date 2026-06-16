@@ -67,7 +67,7 @@ const DemoModeBadge = () => (
 /* ── Main Checkout Page ─────────────────────────────────────────────────── */
 function CheckoutPageContent() {
   const searchParams = useSearchParams();
-  const slug = searchParams.get('slug');
+  const slug = searchParams?.get('slug');
   const [isSuccess, setIsSuccess] = useState(false);
   const [step, setStep] = useState(1); // 1 = Seats, 2 = Payment
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
