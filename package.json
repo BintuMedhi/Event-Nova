@@ -1,0 +1,9 @@
+{
+  "name": "event-nova-root",
+  "version": "1.0.0",
+  "description": "Root runner for Event Nova",
+  "scripts": {
+    "install-all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev": "npx concurrently -k -p \"[{name}]\" -n \"Backend,Frontend\" -c \"yellow.bold,cyan.bold\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+  }
+}
