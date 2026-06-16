@@ -26,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className={`${inter.variable} min-h-full flex flex-col antialiased`} style={{ fontFamily: "'Satoshi', system-ui, sans-serif" }}>
+    <html lang="en" className="h-full" suppressHydrationWarning>
+      <body className={`${inter.variable} min-h-full flex flex-col antialiased`} style={{ fontFamily: "'Satoshi', system-ui, sans-serif" }} suppressHydrationWarning>
         <AuthProvider>
           <Navbar />
           <main className="flex-grow">

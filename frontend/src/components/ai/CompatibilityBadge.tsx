@@ -69,7 +69,7 @@ export default function CompatibilityBadge({ eventId, eventCategory }: Compatibi
 
   const fetchCompatibility = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/ai/compatibility', {
+      const res = await fetch('/api/ai/compatibility', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ eventId, userPreferences: { categories: [eventCategory] } }),

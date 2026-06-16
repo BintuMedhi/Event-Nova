@@ -50,7 +50,7 @@ export default function PricePredictionWidget({ eventId, currentPrice, onBuyNow 
 
   const fetchPrediction = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/ai/price-prediction', {
+      const res = await fetch('/api/ai/price-prediction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ eventId, currentPrice }),

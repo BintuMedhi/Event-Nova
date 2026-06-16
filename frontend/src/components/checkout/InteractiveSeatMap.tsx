@@ -167,7 +167,7 @@ export const InteractiveSeatMap: React.FC<InteractiveSeatMapProps> = ({
 
   /* ── WebSocket ────────────────────────────────────────────────────────── */
   useEffect(() => {
-    const s = io('http://localhost:5000');
+    const s = io(process.env.NEXT_PUBLIC_API_URL || '', { path: '/socket.io' });
     setSocket(s);
     s.on('connect', () => {
       setSocketId(s.id as string);
@@ -215,7 +215,7 @@ export const InteractiveSeatMap: React.FC<InteractiveSeatMapProps> = ({
     if (selectedSeatIds.has(seat._id)) {
       // Deselect
       try {
-        await fetch(`http://localhost:5000/api/seats/${eventId}/unlock`, {
+        await fetch(`/api/seats/${eventId}/unlock`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ seatId: seat._id, socketId }),
@@ -225,7 +225,7 @@ export const InteractiveSeatMap: React.FC<InteractiveSeatMapProps> = ({
     } else {
       if (selectedSeatIds.size >= maxSelection) return;
       try {
-        const res = await fetch(`http://localhost:5000/api/seats/${eventId}/lock`, {
+        const res = await fetch(`/api/seats/${eventId}/lock`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ seatId: seat._id, socketId }),

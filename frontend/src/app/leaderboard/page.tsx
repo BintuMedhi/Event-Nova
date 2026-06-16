@@ -20,7 +20,7 @@ export default function Leaderboard() {
 
   const fetchLeaderboard = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/campaigns/affiliate/leaderboard');
+      const response = await fetch('/api/campaigns/affiliate/leaderboard');
       const data = await response.json();
       if (data.success) {
         setLeaders(data.leaderboard);

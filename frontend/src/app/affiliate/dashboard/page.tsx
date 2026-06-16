@@ -91,7 +91,7 @@ export default function AffiliateDashboard() {
 
   const fetchAffiliateStats = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/campaigns/affiliate/stats', {
+      const response = await fetch('/api/campaigns/affiliate/stats', {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const data = await response.json();

@@ -65,7 +65,7 @@ export default function MyTickets() {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/tickets/my', {
+      const response = await fetch('/api/tickets/my', {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const data = await response.json();

@@ -86,7 +86,7 @@ export default function OrganizerDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/campaigns/organizer/stats', {
+      const response = await fetch('/api/campaigns/organizer/stats', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
@@ -97,7 +97,7 @@ export default function OrganizerDashboard() {
         throw new Error('Organizer stats success flag is false');
       }
       
-      const eventsResponse = await fetch(`http://localhost:5000/api/events?organizerId=${user?.id}`);
+      const eventsResponse = await fetch(`/api/events?organizerId=${user?.id}`);
       if (!eventsResponse.ok) {
         throw new Error('Failed to fetch events');
       }
@@ -153,7 +153,7 @@ export default function OrganizerDashboard() {
   const handleGenerateLink = () => {
     if (!selectedEventId) return;
     const finalSource = utmSource === 'custom' ? customSource.toLowerCase() : utmSource;
-    const url = `http://localhost:5000/api/events/track?source=${finalSource}&eventId=${selectedEventId}`;
+    const url = `/api/events/track?source=${finalSource}&eventId=${selectedEventId}`;
     setGeneratedLink(url);
   };
 
@@ -168,7 +168,7 @@ export default function OrganizerDashboard() {
     setAiGenerating(true);
     setAiDescription('');
     try {
-      const response = await fetch('http://localhost:5000/api/ai/generate-description', {
+      const response = await fetch('/api/ai/generate-description', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ export default function OrganizerDashboard() {
 
     setCreateLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/events', {
+      const response = await fetch('/api/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -104,7 +104,7 @@ export default function EventDetail() {
         return;
       }
       // Try backend as secondary source
-      const response = await fetch(`http://localhost:5000/api/events/slug/${params.slug}`);
+      const response = await fetch(`/api/events/slug/${params.slug}`);
       const data = await response.json();
       if (data.success && data.event) {
         setEvent(data.event);
@@ -137,7 +137,7 @@ export default function EventDetail() {
     setAiLoading(true);
     setAiCaption('');
     try {
-      const response = await fetch('http://localhost:5000/api/ai/generate-caption', {
+      const response = await fetch('/api/ai/generate-caption', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -194,8 +194,8 @@ export default function EventDetail() {
 
   // User referral link
   const promoterLink = user
-    ? `http://localhost:5000/api/events/track?ref=${user.referralCode}&eventId=${event._id}`
-    : `http://localhost:5000/api/events/track?eventId=${event._id}`;
+    ? `/api/events/track?ref=${user.referralCode}&eventId=${event._id}`
+    : `/api/events/track?eventId=${event._id}`;
 
   const copyToClipboard = (text: string, type: 'link' | 'caption') => {
     navigator.clipboard.writeText(text);

@@ -98,7 +98,7 @@ function CheckoutPageContent() {
 
       // Try backend as secondary source
       try {
-        const res = await fetch(`http://localhost:5000/api/events/slug/${slug}`);
+        const res = await fetch(`/api/events/slug/${slug}`);
         const data = await res.json();
         if (data.success && data.event) {
           setEventData({

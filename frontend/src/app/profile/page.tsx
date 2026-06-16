@@ -83,7 +83,7 @@ export default function ProfilePage() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/tickets/my', {
+      const res = await fetch('/api/tickets/my', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -113,7 +113,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await fetch('http://localhost:5000/api/auth/profile', {
+      await fetch('/api/auth/profile', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

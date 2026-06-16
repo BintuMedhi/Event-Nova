@@ -61,11 +61,13 @@ export default function AiSearchBar({ onOpenChat }: AiSearchBarProps) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholders[placeholderIdx]}
           className="w-full bg-white/90 backdrop-blur-md border border-[#D6D3D1] rounded-[32px] text-[#1C1917] text-lg py-5 pl-16 pr-44 placeholder-[#78716C] outline-none transition-all duration-300 focus:border-[#A67B5B] focus:bg-white shadow-[0_8px_32px_rgba(28,25,23,0.06)] hover:shadow-[0_12px_40px_rgba(28,25,23,0.08)]"
+          suppressHydrationWarning
         />
         
         <button
           type="submit"
           className="absolute right-3 top-1/2 -translate-y-1/2 btn-accent py-3 px-6 shadow-none hover:shadow-[0_4px_16px_rgba(166,123,91,0.25)] flex items-center gap-2"
+          suppressHydrationWarning
         >
           Ask Concierge <ArrowRight className="w-4 h-4" />
         </button>
@@ -83,6 +85,7 @@ export default function AiSearchBar({ onOpenChat }: AiSearchBarProps) {
             key={idx}
             onClick={() => onOpenChat(suggestion)}
             className="text-xs sm:text-sm px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm border border-[#D6D3D1] hover:border-[#A67B5B] hover:bg-white text-[#57534E] hover:text-[#A67B5B] transition-all duration-300 shadow-sm whitespace-nowrap"
+            suppressHydrationWarning
           >
             {suggestion}
           </button>

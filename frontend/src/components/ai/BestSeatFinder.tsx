@@ -38,7 +38,7 @@ export default function BestSeatFinder({ eventId, onSeatsRecommended }: BestSeat
     setIsLoading(true);
     setResult(null);
     try {
-      const res = await fetch('http://localhost:5000/api/ai/best-seats', {
+      const res = await fetch('/api/ai/best-seats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

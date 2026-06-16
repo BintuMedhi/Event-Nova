@@ -65,7 +65,7 @@ export default function GateScanner() {
     setScanResult(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/tickets/checkin', {
+      const response = await fetch('/api/tickets/checkin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

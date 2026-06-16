@@ -90,25 +90,25 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       // 1. Stats
-      const statsRes = await fetch('http://localhost:5000/api/admin/stats', {
+      const statsRes = await fetch('/api/admin/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const statsData = await statsRes.json();
       
       // 2. Users
-      const usersRes = await fetch('http://localhost:5000/api/admin/users', {
+      const usersRes = await fetch('/api/admin/users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const usersData = await usersRes.json();
 
       // 3. Events
-      const eventsRes = await fetch('http://localhost:5000/api/admin/events', {
+      const eventsRes = await fetch('/api/admin/events', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const eventsData = await eventsRes.json();
 
       // 4. Tickets
-      const ticketsRes = await fetch('http://localhost:5000/api/admin/tickets', {
+      const ticketsRes = await fetch('/api/admin/tickets', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const ticketsData = await ticketsRes.json();
@@ -286,7 +286,7 @@ export default function AdminDashboard() {
   // User Actions
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/role`, {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -311,7 +311,7 @@ export default function AdminDashboard() {
   const handleDeleteUser = async (userId: string) => {
     if (!window.confirm('Are you sure you want to delete this user? This action is permanent!')) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
+      const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
   // Event Actions
   const handleEventStatusChange = async (eventId: string, newStatus: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/events/${eventId}/status`, {
+      const response = await fetch(`/api/admin/events/${eventId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
   const handleDeleteEvent = async (eventId: string) => {
     if (!window.confirm('Are you sure you want to delete this event? All ticket mappings will be broken.')) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/events/${eventId}`, {
+      const response = await fetch(`/api/admin/events/${eventId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -375,7 +375,7 @@ export default function AdminDashboard() {
   // Ticket Actions
   const handleTicketPaymentChange = async (ticketId: string, newPaymentStatus: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/tickets/${ticketId}/payment`, {
+      const response = await fetch(`/api/admin/tickets/${ticketId}/payment`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -399,7 +399,7 @@ export default function AdminDashboard() {
   const handleDeleteTicket = async (ticketId: string) => {
     if (!window.confirm('Delete ticket mapping? This record will disappear from buyer logs.')) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/tickets/${ticketId}`, {
+      const response = await fetch(`/api/admin/tickets/${ticketId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
